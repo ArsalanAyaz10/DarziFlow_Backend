@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
-const userSchema = mongoose.Schema(
+// 🔹 Common User Schema
+const baseUserSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -15,11 +16,6 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    role: {
-      type: String,
-      enum: ["MODERATOR", "ADMIN", "SUPERVISOR", "QC_OFFICER", "CLIENT"],
-      default: "CLIENT",
-    },
     status: {
       type: String,
       enum: ["ACTIVE", "INACTIVE"],
@@ -29,4 +25,9 @@ const userSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("User", userSchema);
+// 🔹 Different Models for Each Role (Separate Collections)
+export const Moderator = mongoose.model("Moderator", baseUserSchema, "moderators");
+export const Admin = mongoose.model("Admin", baseUserSchema, "admins");
+export const Supervisor = mongoose.model("Supervisor", baseUserSchema, "supervisors");
+export const QCOfficer = mongoose.model("QCOfficer", baseUserSchema, "qc_officers");
+export const Client = mongoose.model("Client", baseUserSchema, "clients");
