@@ -1,29 +1,28 @@
-import { Admin } from "./models/User.js";
-
-import mongoose from "mongoose";
+import {hashPassword,comparePassword} from "./utils/authUtill.js";
+import User from "./models/User.js"; // adjust path
+import connectDB from "./config/db.js";
 import dotenv from "dotenv";
+
 dotenv.config();
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+//connect to database
+connectDB(); 
 
-const seedAdmin = async () => {
-  try {
-    const admin = new Admin({
-      name: "Super Admin",
-      email: "admin@example.com",
-      password: "123456", // hash in real use
-    });
+const addModerator = async () => {
 
-    await admin.save();
-    console.log("Admin user seeded successfully");
-    process.exit();
-  } catch (error) {
-    console.error("Error seeding admin:", error.message);
-    process.exit(1);
-  }
+    // Hash password
+    const hashed = await hashPassword("zabkps139");
+  console.log("Hashed Password: ", hashed);
+  const moderator = new User({
+    name: "Arsalan Ayaz",
+    workEmail: "arsalanayazkps@gmail.com",
+    password: hashed,
+    role: "MODERATOR",
+  });
+
+  await moderator.save();
+  console.log("Moderator added!");
+  process.exit();
 };
 
-seedAdmin();
+addModerator();
