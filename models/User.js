@@ -18,24 +18,29 @@ const userSchema = new mongoose.Schema(
     },
 
     // Moderator-specific
-    isSeeded: { type: Boolean, default: false }, // for seeding moderators manually
+    isSeeded: { type: Boolean, default: false },
 
     // Admin-specific
-    departmentsCreated: [{ type: mongoose.Schema.Types.ObjectId, ref: "Department" }],
+    departmentsCreated: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "Department" }
+    ],
 
     // Supervisor & QC Officer
     department: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Department",
-      default: null, // not required here, enforce in controller when role = SUPERVISOR/QC_OFFICER
+      default: null,
     },
 
     // Client-specific
     orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
 
+    // Auth-related
+    refreshToken: { type: String, default: null }, // store refresh token for session management
+
     // Common fields
-    isVerified: { type: Boolean, default: false }, // admins verify new users
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // who created this account
+    isVerified: { type: Boolean, default: false },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }
 );

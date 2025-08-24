@@ -21,7 +21,7 @@ const generateAccessToken  = (user)=>{
             role: user.role,
         },
         process.env.JWT_SECRET,
-        {expiresIn: '1d'}
+        {expiresIn: '30m'}
     );
 }
 
@@ -33,3 +33,5 @@ const generateRefreshToken = (user) => {
         { expiresIn: '7d' } 
     );
 };
+
+export {hashPassword,comparePassword,generateAccessToken,generateRefreshToken};
