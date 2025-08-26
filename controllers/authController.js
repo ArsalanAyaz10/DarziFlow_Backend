@@ -126,4 +126,17 @@ const refreshToken = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser, refreshToken };
+const logoutUser = async (req, res) => {
+    try {
+      const user = await User.findById(req.user.id);
+      if (!user) return res.status(404).json({ msg: "User not found" });
+  
+      user.refreshToken = null; // clear stored refresh token
+      await user.save();
+  
+      res.json({ msg: "Logged out successfully" });
+    } catch (err) {
+      res.status(500).send("Server error");
+    } 
+}
+export { logoutUser,registerUser, loginUser, refreshToken };

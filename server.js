@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser";
 
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
-
+import profileRoutes from "./routes/profileRoutes.js";
 
 dotenv.config();
 
@@ -30,6 +30,7 @@ app.use(morgan("dev")); // Logs requests in dev mode
 //ROUTES
 
 app.use("/api/auth", authRoutes);
+app.use("/api/profile", profileRoutes);
 
 // Default route
 app.get("/", (req, res) => {

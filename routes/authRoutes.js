@@ -1,5 +1,7 @@
 import express from "express";
-import {registerUser, loginUser, refreshToken} from "../controllers/authController.js";
+import {logoutUser, registerUser, loginUser, refreshToken} from "../controllers/authController.js";
+import {protect} from "../middleware/authMiddleware.js";
+
 
 const router = express.Router();
 
@@ -10,6 +12,10 @@ router.post("/register", registerUser); // Supervisor / QC Officer / Client
 
 //Login
 router.post("/login", loginUser);       // All roles can login
+
+// Logout
+router.post("/logout", protect,logoutUser);
+
 
 // Refresh
 router.post("/refresh", refreshToken);
