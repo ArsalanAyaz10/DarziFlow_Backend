@@ -14,7 +14,7 @@ router.post("/register", registerUser); // Supervisor / QC Officer / Client
 router.post("/login", loginUser);       // All roles can login
 
 // Logout
-router.post("/logout", protect,logoutUser);
+router.post("/logout",logoutUser);
 
 
 // Refresh

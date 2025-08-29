@@ -62,7 +62,7 @@ const loginUser = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     // Verify password
-    const isMatch = comparePassword(password, user.password);
+    const isMatch = await comparePassword(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
     // ✅ Check role restriction
@@ -78,12 +78,33 @@ const loginUser = async (req, res) => {
     user.refreshToken = refreshToken;
     await user.save();
 
-    res.status(200).json({
-      message: "Login successful",
-      accessToken,
-      refreshToken,
-      user: { id: user._id, workEmail: user.workEmail, role: user.role },
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 15 * 60 * 1000, // 15 min
     });
+
+
+    // Send tokens (access token in response, refresh in HttpOnly cookie)
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    res.status(201).json({
+      message: "User registered successfully",
+      user: {
+        _id: user._id,
+        name: user.name,
+        workEmail: user.workEmail,
+        role: user.role,
+      },
+      accessToken,
+    });
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -127,16 +148,34 @@ const refreshToken = async (req, res) => {
 };
 
 const logoutUser = async (req, res) => {
-    try {
-      const user = await User.findById(req.user.id);
-      if (!user) return res.status(404).json({ msg: "User not found" });
-  
-      user.refreshToken = null; // clear stored refresh token
-      await user.save();
-  
-      res.json({ msg: "Logged out successfully" });
-    } catch (err) {
-      res.status(500).send("Server error");
-    } 
-}
+  try {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (refreshToken) {
+      // Remove refresh token from DB
+      await User.updateOne(
+        { refreshToken },
+        { $unset: { refreshToken: "" } }
+      );
+    }
+
+    // Clear cookies (both tokens)
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict"
+    });
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict"
+    });
+
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
 export { logoutUser,registerUser, loginUser, refreshToken };
