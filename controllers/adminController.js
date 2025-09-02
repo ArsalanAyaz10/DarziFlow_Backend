@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import {hashPassword} from "../utils/authUtill.js";
+import { sendEmail } from '../utils/mailer.js';
 
 const createAdmin = async (req, res) => {
     try {
@@ -13,17 +14,31 @@ const createAdmin = async (req, res) => {
   
       // hash password
       const hashedPassword = await hashPassword(password);
-  
-      // create new admin
+      
+    // Send credentials via email
+    const emailContent = `
+      <h2>Welcome to Our Platform</h2>
+      <p>Hello ${name},</p>
+      <p>Your admin account has been created. Here are your login details:</p>
+      <ul>
+        <li><strong>Email:</strong> ${workEmail}</li>
+        <li><strong>Temporary Password:</strong> ${password}</li>
+      </ul>
+      <p>Please login and change your password immediately.</p>
+    `;
+
+    await sendEmail(workEmail, "Your Admin Account Credentials", emailContent);
+
+          // create new admin
       const newAdmin = await User.create({
         name,
         workEmail,
         password: hashedPassword,
         role: "ADMIN",
       });
-  
+      
       res.status(201).json({
-        message: "Admin created successfully",
+         message: "Admin created successfully & credentials sent via email",
         admin: {
           _id: newAdmin._id,
           name: newAdmin.name,
