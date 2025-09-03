@@ -4,16 +4,16 @@ import { createAdmin, fetchAdmins, updateAdmin, deleteAdmin } from "../controlle
 
 const router = express.Router();
 
-// Create a new Admin (only MODERATOR can do this) 
-router.post("/create", protect, authorizeRoles("MODERATOR"),createAdmin);
+// Create a new Admin (only MODERATOR,ADMIN can do this) 
+router.post("/create", protect, authorizeRoles("MODERATOR","ADMIN"),createAdmin);
 
-// Get all Admins (only MODERATOR can see them)
-router.get("/fetch", protect, authorizeRoles("MODERATOR"),fetchAdmins);
+// Get all Admins (only MODERATOR,ADMIN can see them)
+router.get("/fetch", protect, authorizeRoles("MODERATOR","ADMIN"),fetchAdmins);
 
-//Update an Admin (only MODERATOR can update)
-router.put("/:id", protect, authorizeRoles("MODERATOR"),updateAdmin);
+//Update an Admin (only MODERATOR,ADMIN can update)
+router.put("/:id", protect, authorizeRoles("MODERATOR","ADMIN"),updateAdmin);
 
-//Delete an Admin (only MODERATOR can delete)
-router.delete("/:id", protect, authorizeRoles("MODERATOR"),deleteAdmin);
+//Delete an Admin (only MODERATOR,ADMIN can delete)
+router.delete("/:id", protect, authorizeRoles("MODERATOR","ADMIN"),deleteAdmin);
 
 export default router;

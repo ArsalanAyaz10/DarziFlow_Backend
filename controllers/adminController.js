@@ -76,6 +76,21 @@ const updateAdmin = async (req, res) => {
       admin.password = await hashPassword(password);
     }
 
+        // Send credentials via email
+    const emailContent = `
+      <h2>Welcome to Our Platform DarziFlow</h2>
+      <p>Hello ${name},</p>
+      <p>Your admin account has been updated. Here are your new login details:</p>
+      <ul>
+        <li><strong>Name:</strong> ${name}</li>
+        <li><strong>Email:</strong> ${workEmail}</li>
+        <li><strong>Password:</strong> ${password}</li>
+      </ul>
+      <p>Please login and change your password immediately.</p>
+    `;
+
+    await sendEmail(workEmail, "Your Admin Account Credentials", emailContent);
+
 
     await admin.save();
     res.json({ message: "Admin updated successfully", admin });
