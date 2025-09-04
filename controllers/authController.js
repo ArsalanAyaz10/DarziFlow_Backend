@@ -11,7 +11,6 @@ const registerUser = async (req, res) => {
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
     }
-
     // Hash password
     const hashed = await hashPassword(password);
 
@@ -22,21 +21,14 @@ const registerUser = async (req, res) => {
       password: hashed,
       role
     });
+    
+    if(role == "CLIENT" || role == "QC_OFFICER" || role == "SUPERVISOR"){
+      newUser.status = "PENDING";      
+    }else{
+      newUser.status = null;
+    }
 
-    // Generate tokens
-    const accessToken = generateAccessToken(newUser);
-    const refreshToken = generateRefreshToken(newUser);
-
-    // Optionally save refreshToken in DB (depends on your strategy)
-    newUser.refreshToken = refreshToken;
     await newUser.save();
-
-    // Send tokens (access token in response, refresh in HttpOnly cookie)
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-    });
 
     res.status(201).json({
       message: "User registered successfully",
@@ -46,7 +38,6 @@ const registerUser = async (req, res) => {
         workEmail: newUser.workEmail,
         role: newUser.role,
       },
-      accessToken,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -55,7 +46,7 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   try {
-    const { workEmail, password } = req.body;
+    const { workEmail, password, platform } = req.body;
 
     // Check if user exists
     const user = await User.findOne({ workEmail });
@@ -65,20 +56,41 @@ const loginUser = async (req, res) => {
     const isMatch = await comparePassword(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-    // ✅ Check role restriction
-    if (user.role !== "ADMIN" && user.role !== "MODERATOR") {
-      return res.status(403).json({ message: "Access denied. Only Moderators and Admins can login." });
+    // ✅ Platform + Role check
+    if (platform === "WEB") {
+      if (user.role !== "ADMIN" && user.role !== "MODERATOR") {
+        return res.status(403).json({ message: "Access denied. Only Moderators and Admins can login from web." });
+      }
+    } 
+    else if (platform === "MOBILE") {
+      if (user.role !== "SUPERVISOR" && user.role !== "QC_OFFICER" && user.role !== "CLIENT") {
+        return res.status(403).json({ message: "Access denied. Only Supervisors, QC Officers, or Clients can login from mobile." });
+      }
+
+      // Also check approval status for mobile roles
+      if (user.status !== "APPROVED") {
+        return res.status(403).json({ message: `Your account is ${user.status}. Contact admin for support.` });
+      }
+    } 
+    else {
+      return res.status(400).json({ message: "Platform not specified or invalid (use WEB or MOBILE)" });
     }
 
+      if (user.status) {
+    user.status = undefined;
+    await user.save();
+  }
+  
     // Generate tokens
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    // Optional: Save refresh token in DB (so you can invalidate later if needed)
+    // Save refresh token in DB
     user.refreshToken = refreshToken;
     await user.save();
 
-    res.cookie("accessToken", accessToken, {
+    // Set cookies
+        res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
@@ -94,6 +106,7 @@ const loginUser = async (req, res) => {
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
+    // Send tokens
     res.status(201).json({
       message: "User logged in successfully",
       user: {
@@ -104,12 +117,13 @@ const loginUser = async (req, res) => {
       },
       accessToken,
     });
-    
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // Refresh token endpoint logic
 const refreshToken = async (req, res) => {

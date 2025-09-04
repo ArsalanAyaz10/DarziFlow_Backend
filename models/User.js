@@ -17,29 +17,19 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
 
-    // Moderator-specific
-    isSeeded: { type: Boolean, default: false },
-
-    // Admin-specific
-    departmentsCreated: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "Department" }
-    ],
-
-    // Supervisor & QC Officer
-    department: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Department",
-      default: null,
-    },
-
-    // Client-specific
-    orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
-
     // Auth-related
     refreshToken: { type: String, default: null }, // store refresh token for session management
 
-    // Common fields
-    isVerified: { type: Boolean, default: false },
+    // Approval workflow
+    status: {
+      type: String,
+      enum: ["PENDING", "APPROVED", "REJECTED"],
+      default: "PENDING",
+    },
+    rejectionReason: { type: String, default: null },
+
+
+    // Metadata
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }
