@@ -7,7 +7,10 @@ import cookieParser from "cookie-parser";
 
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
-
+import profileRoutes from "./routes/profileRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import mailRoutes from "./routes/mailtestRoute.js";
+import userRoutes from "./routes/userRoute.js";
 
 dotenv.config();
 
@@ -30,6 +33,14 @@ app.use(morgan("dev")); // Logs requests in dev mode
 //ROUTES
 
 app.use("/api/auth", authRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/users", userRoutes);
+//app.use("/api/mail", mailRoutes);
+
+
+
+
 
 // Default route
 app.get("/", (req, res) => {
