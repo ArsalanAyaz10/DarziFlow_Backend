@@ -41,8 +41,8 @@ const getDepartments = async (req, res) => {
       departments,
     });
   } catch (error) {
-    console.error("Error fetching departments:", error);
-    res.status(500).json({ message: "Server error while fetching departments" });
+      console.error("Error creating department:", error.message);
+  res.status(500).json({ message: error.message });
   }
 };
 

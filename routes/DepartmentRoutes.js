@@ -8,7 +8,7 @@ const router = express.Router();
 router.get("/", protect, getDepartments);
 
 // Get logged-in user profile
-router.post("/create",createDepartment);
+router.post("/create", protect,createDepartment);
 
 // Update
 router.put("/:id", protect, updateDepartment);
