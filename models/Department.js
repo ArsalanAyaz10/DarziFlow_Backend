@@ -10,4 +10,4 @@ const DepartmentSchema = new mongoose.Schema({
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 }, { timestamps: true });
 
-module.exports = mongoose.model("Department", DepartmentSchema);
+export default mongoose.model("Department", DepartmentSchema);

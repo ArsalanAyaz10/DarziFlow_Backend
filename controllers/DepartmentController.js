@@ -1,15 +1,15 @@
 import Department from "../models/Department.js"; // adjust path if needed
 
-export const createDepartment = async (req, res) => {
+const createDepartment = async (req, res) => {
   try {
     const { name, status, description, supervisor } = req.body;
 
-    // ✅ Validation
+    //Validation
     if (!name || !supervisor) {
       return res.status(400).json({ message: "Name and Supervisor are required." });
     }
 
-    // ✅ Create department
+    //Create department
     const department = new Department({
       name,
       description,

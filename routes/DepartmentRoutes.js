@@ -4,11 +4,11 @@ import { getDepartments, createDepartment,updateDepartment, deleteDepartment } f
 
 const router = express.Router();
 
-// Get logged-in user profile
-router.post("/create", protect,createDepartment);
-
 // Read
 router.get("/", protect, getDepartments);
+
+// Get logged-in user profile
+router.post("/create",createDepartment);
 
 // Update
 router.put("/:id", protect, updateDepartment);
