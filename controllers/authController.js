@@ -56,7 +56,7 @@ const loginUser = async (req, res) => {
     const isMatch = await comparePassword(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-    // ✅ Platform + Role check
+    //Platform + Role check
     if (platform === "WEB") {
       if (user.role !== "ADMIN" && user.role !== "MODERATOR") {
         return res.status(403).json({ message: "Access denied. Only Moderators and Admins can login from web." });
@@ -94,7 +94,7 @@ const loginUser = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 15 * 60 * 1000, // 15 min
+      maxAge: 30 * 60 * 1000, // 30 min
     });
 
 
@@ -103,7 +103,7 @@ const loginUser = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     // Send tokens
