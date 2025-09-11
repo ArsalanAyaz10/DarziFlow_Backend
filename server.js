@@ -24,7 +24,7 @@ app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(cookieParser()); // Parse cookies
 
-app.use(cors({ origin: true,origin: "http://localhost:3000", credentials: true })); 
+app.use(cors({ origin: true,origin: "http://localhost:3000", credentials: true, exposedHeaders: ["x-access-token"], })); 
 // (allow CORS, later configure origin properly for frontend)
 app.use(helmet()); // Secure HTTP headers
 
